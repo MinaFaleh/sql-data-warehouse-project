@@ -1,0 +1,48 @@
+-- =============================================================================
+-- Script: Create Data Warehouse Database and Schemas
+-- Purpose: Initializes the DataWarehouse database and sets up the
+--          Medallion Architecture schemas (Bronze, Silver, Gold layers).
+-- Note:    Checks for existing objects first and drops/recreates them,
+--          so this script can be run safely multiple times.
+-- =============================================================================
+
+-- Switch context to the master database to allow creating/dropping a database
+USE master;
+GO
+
+-- -----------------------------------------------------------------------------
+-- Drop the database if it already exists, then create it fresh
+-- -----------------------------------------------------------------------------
+IF EXISTS (SELECT 1 FROM sys.databases WHERE name = 'DataWarehouse')
+BEGIN
+    -- Force close any active connections before dropping
+    ALTER DATABASE DataWarehouse SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE DataWarehouse;
+END
+GO
+
+CREATE DATABASE DataWarehouse;
+GO
+
+-- Switch context to the newly created database
+USE DataWarehouse;
+GO
+
+-- -----------------------------------------------------------------------------
+-- Create schemas for the Medallion Architecture
+--   Bronze: raw, unprocessed data ingested as-is from source systems
+--   Silver: cleaned, validated, and transformed data
+--   Gold  : business-ready, aggregated data for reporting/analytics
+-- -----------------------------------------------------------------------------
+
+-- Raw data layer
+CREATE SCHEMA bronze;
+GO
+
+-- Cleaned/transformed data layer
+CREATE SCHEMA silver;
+GO
+
+-- Business/reporting-ready data layer
+CREATE SCHEMA gold;
+GO
